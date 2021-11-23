@@ -151,15 +151,21 @@
   }
 
   function eachKey(fn) {
+    // enumerate the keys created using lscache
     var prefixRegExp = new RegExp('^' + CACHE_PREFIX + escapeRegExpSpecialCharacters(cacheBucket) + '(.*)');
-    // Loop in reverse as removing items will change indices of tail
+    var keysToRemove = [];
     for (var i = localStorage.length-1; i >= 0 ; --i) {
       var key = localStorage.key(i);
       key = key && key.match(prefixRegExp);
       key = key && key[1];
       if (key && key.indexOf(CACHE_SUFFIX) < 0) {
-        fn(key, expirationKey(key));
+        keysToRemove.push(key);
       }
+    }
+
+    // remove keys based on enumeration list
+    for (var i = keysToRemove.length-1; i >= 0 ; --i) {
+      fn(keysToRemove[i], expirationKey(keysToRemove[i]));
     }
   }
 
